@@ -1,16 +1,44 @@
-const PORT = process.env.PORT || 8000 
+const port = process.env.PORT || 8000 
 const axios = require('axios')
+const path = require('path');
 const cheerio = require('cheerio')
+const ehbs = require('express-handlebars');
 const express = require('express')
 const app = express()
 const bodyParser = require("body-parser");
+const authRoute = require('./routes/auth');
+const cookieParser = require('cookie-parser');
+if(typeof require !== 'undefined') XLSX = require('xlsx');
+
 const cors = require('cors')
 app.use(cors())
+//use statics files 
+app.use(express.static(path.join(__dirname, '/public')));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+//useing handlebars
+//hbs images
+app.use(express.static('images')); 
+//cookie parser
+app.use(cookieParser());
+//express handlebars
+app.engine(
+  "handlebars",
+  ehbs({
+    extname: "hbs",
+    defaultLayout: 'main'
+  })
+);
+app.set('view engine', 'handlebars');
 
-if(typeof require !== 'undefined') XLSX = require('xlsx');
+//routes
+
+//register and signin routes
+app.use("/",authRoute);
+
+
 
 const StartURL = 'https://www.yellowpages.com/search?search_terms=restaurant&geo_location_terms=Glendale%2C+CA'
 
@@ -101,5 +129,5 @@ app.post('/results', async (req, res) => {
 })
 
 
-app.listen(PORT, () => console.log(`server running on PORT ${PORT}`))
+app.listen(port, () => console.log(`server running on PORT ${port}`))
 
